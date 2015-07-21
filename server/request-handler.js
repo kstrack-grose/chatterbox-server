@@ -16,71 +16,51 @@ this file and include it in basic-server.js so that it actually works.
 var http = require("http");
 exports = module.exports = {};
 
+var objectId = 1;
 var allMessages = {};
 allMessages.results = messages = [];
 
+
+var getData = function(request, callback) {
+  var data = '';
+  request.on('data', function(datum) {
+    data += datum;
+  });
+  request.on('end', function() {
+    callback(JSON.parse(data));
+  });
+}
+
 module.exports.requestHandler = function(request, response) {
-  // Request and Response come from node's http module.
-  //
-  // They include information about both the incoming request, such as
-  // headers and URL, and about the outgoing response, such as its status
-  // and content.
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
 
-  // Do some basic logging.
-  //
-  // Adding more logging to your server can be an easy way to get passive
-  // debugging help, but you should always be careful about leaving stray
-  // console.logs in your code.
   console.log("Serving request type " + request.method + " for url " + request.url);
-
-  //store messages??
-
-  // See the note below about CORS headers.
-  //ALWAYS NEED
-
   var headers = defaultCorsHeaders;
-  headers['Content-Type'] = "text/plain";
+  headers['Content-Type'] = "application/json";
 
-  //??
-  if (response.method === 'OPTIONS') {
-    console.log("this was options");
+  if (request.method === 'OPTIONS') {
     var statusCode = 200;
-  }
-  //post
-  else if (request.method === 'POST' && request.url === '/classes/room1') {
-    console.log('post');
+    response.writeHead(statusCode, headers);
+    response.end();
+  } else if (request.method === 'POST' && request.url === '/classes/room1') {
     var statusCode = 201;
-
-    request.on('data', function(data) {
-      messages.push(data);
-    });
-  }
-  //post
-  else if (request.method === 'POST' && request.url === '/classes/messages') {
-    console.log('post');
+    getData(request, function(message) {
+      message.objectId = ++objectId;
+      messages.push(message);
+    }); 
+  } else if (request.method === 'POST' && request.url === '/classes/messages') {
     var statusCode = 201;
-
-    request.on('data', function(data) {
-      messages.push(data);
-    });
-  }
-
-  //GET
-  else if (request.method === 'GET' && request.url === '/classes/messages' ) {
-    console.log('get');
+    getData(request, function(message) {
+      message.objectId = ++objectId;
+      messages.push(message);
+    }); 
+  } else if (request.method === 'GET' && request.url === '/classes/messages' ) {
     var statusCode = 200;
-  }
-  //GET
-  else if (request.method === 'GET' && request.url === '/classes/room1' ) {
-    console.log('get');
+  } else if (request.method === 'GET' && request.url === '/classes/room1' ) {
     var statusCode = 200;
-  }
-  else {
+  } else {
     var statusCode = 404;
   }
+
   //FOR ALL CASES
   response.writeHead(statusCode, headers);
   response.end(JSON.stringify(allMessages));
