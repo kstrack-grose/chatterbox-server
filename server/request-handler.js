@@ -53,9 +53,7 @@ module.exports.requestHandler = function(request, response) {
       message.objectId = ++objectId;
       messages.push(message);
     }); 
-  } else if (request.method === 'GET' && request.url === '/classes/messages' ) {
-    var statusCode = 200;
-  } else if (request.method === 'GET' && request.url === '/classes/room1' ) {
+  } else if (request.method === 'GET' && (request.url === '/classes/chatterbox' || request.url === '/classes/room1' || request.url === '/classes/messages')) {
     var statusCode = 200;
   } else {
     var statusCode = 404;
