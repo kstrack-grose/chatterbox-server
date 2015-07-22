@@ -19,6 +19,7 @@ exports = module.exports = {};
 var objectId = 1;
 var allMessages = {};
 allMessages.results = messages = [];
+messages.push({text: "fooooobaraara", username: "kiri", objectId: objectId});
 
 
 var getData = function(request, callback) {
@@ -41,13 +42,7 @@ module.exports.requestHandler = function(request, response) {
     var statusCode = 200;
     response.writeHead(statusCode, headers);
     response.end();
-  } else if (request.method === 'POST' && request.url === '/classes/room1') {
-    var statusCode = 201;
-    getData(request, function(message) {
-      message.objectId = ++objectId;
-      messages.push(message);
-    }); 
-  } else if (request.method === 'POST' && request.url === '/classes/messages') {
+  } else if (request.method === 'POST' && (request.url === '/classes/chatterbox' || request.url === '/classes/room1' || request.url === '/classes/messages')) {
     var statusCode = 201;
     getData(request, function(message) {
       message.objectId = ++objectId;
